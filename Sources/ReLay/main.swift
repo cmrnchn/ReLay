@@ -27,6 +27,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         setupMenuBar()
         checkAccessibilityAndStart()
         checkConflicts()
+        setupWindowObservers()
 
         NotificationCenter.default.addObserver(self, selector: #selector(toggleInterception), name: NSNotification.Name("ReLayEmergencyStop"), object: nil)
         NotificationCenter.default.addObserver(forName: ReLaySettings.interceptionToggled, object: nil, queue: .main) { [weak self] note in
@@ -36,6 +37,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         Logger.log("runtime active", subsystem: "startup")
+    }
+
+    private func setupWindowObservers() {
+        NotificationCenter.default.addObserver(
+            forName: NSWindow.didBecomeMainNotification,
+            object: nil,
+            queue: .main
+        ) { notification in
+            if let window = notification.object as? NSWindow {
+                let title = window.title
+                let ts = ProcessInfo.processInfo.systemUptime
+                Logger.log("NSWindow.didBecomeMain: \(title) ts=\(String(format: "%.3f", ts))", subsystem: "input")
+            }
+        }
+
+        NotificationCenter.default.addObserver(
+            forName: NSWindow.didBecomeKeyNotification,
+            object: nil,
+            queue: .main
+        ) { notification in
+            if let window = notification.object as? NSWindow {
+                let title = window.title
+                let ts = ProcessInfo.processInfo.systemUptime
+                Logger.log("NSWindow.didBecomeKey: \(title) ts=\(String(format: "%.3f", ts))", subsystem: "input")
+            }
+        }
     }
 
     private func checkAccessibilityAndStart() {

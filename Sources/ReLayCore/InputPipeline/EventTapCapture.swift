@@ -153,7 +153,8 @@ final class EventTapCapture {
                 return
             }
             titleBarGestureActive = true
-            Logger.log("scroll began allowed at (\(Int(location.x)),\(Int(location.y)))", subsystem: "input")
+            let ts = ProcessInfo.processInfo.systemUptime
+            Logger.log("scroll began allowed at (\(Int(location.x)),\(Int(location.y))) ts=\(String(format: "%.3f", ts))", subsystem: "input")
 
         case .changed:
             guard titleBarGestureActive else { return }

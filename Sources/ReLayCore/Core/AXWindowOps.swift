@@ -36,10 +36,18 @@ enum AXWindowOps {
         let axApp = AXUIElementCreateApplication(app.processIdentifier)
         var ref: CFTypeRef?
         if AXUIElementCopyAttributeValue(axApp, kAXFocusedWindowAttribute as CFString, &ref) == .success {
-            return (ref as! AXUIElement)
+            let window = (ref as! AXUIElement)
+            let title = Self.title(window)
+            Logger.log("frontmost() via focusedWindow: \(title)", subsystem: "input")
+            return window
         }
         if AXUIElementCopyAttributeValue(axApp, kAXWindowsAttribute as CFString, &ref) == .success,
-           let list = ref as? [AXUIElement], let first = list.first { return first }
+           let list = ref as? [AXUIElement], let first = list.first {
+            let title = Self.title(first)
+            Logger.log("frontmost() via firstWindow: \(title)", subsystem: "input")
+            return first
+        }
+        Logger.log("frontmost() returned nil", subsystem: "input")
         return nil
     }
 

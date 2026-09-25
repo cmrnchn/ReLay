@@ -90,8 +90,13 @@ public final class WindowRuntime: EventTapCaptureDelegate {
     func didReceive(_ intent: WindowIntent) {
         let window: AXUIElement?
         if intent.phase == .began {
-            window = TitleBarHitTest.windowForGesture(at: intent.location)
-                ?? AXWindowOps.frontmost()
+            let ts = ProcessInfo.processInfo.systemUptime
+            let hitTestWindow = TitleBarHitTest.windowForGesture(at: intent.location)
+            let frontmost = AXWindowOps.frontmost()
+            window = hitTestWindow ?? frontmost
+            let windowTitle = window.flatMap { AXWindowOps.title($0) } ?? "nil"
+            let source = hitTestWindow != nil ? "hitTest" : "frontmost"
+            Logger.log("gesture began: got window from \(source), title=\(windowTitle) ts=\(String(format: "%.3f", ts))", subsystem: "input")
         } else {
             window = state.activeWindow
         }
